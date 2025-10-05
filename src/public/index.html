@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>DistroMap API</title>
+  <link href="/src/public/assets/style.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+  <div class='container'>
+    <div class='header'>
+      <h1>DistroMap API</h1>
+      <p class='subtitle'>A service that provides information about Linux distribution versions and release cycles</p>
+    </div>
+    <div class='content'>
+      <div class='api-info'>
+        <h2>API Usage</h2>
+        <p>This API allows you to query Linux distribution release information by product name and codename.</p>
+      </div>
+      
+      <h3>Available Endpoints</h3>
+      <div class='endpoint'>
+        <strong>Get distribution info:</strong><br>
+        <code>GET /distro/{product}/{codename}</code><br>
+        Example: <code>/distro/ubuntu/noble</code> or <code>/distro/debian/bookworm</code>
+      </div>
+      
+      <div class='endpoint'>
+        <strong>Health check:</strong><br>
+        <code>GET /health</code><br>
+        Returns API status and database information
+      </div>
+      
+      <div class='endpoint'>
+        <strong>This page:</strong><br>
+        <code>GET /</code><br>
+        Returns this HTML documentation page
+      </div>
+      
+      <h3>Examples</h3>
+      <div class='example'>
+        <p><strong>Ubuntu Noble (24.04)</strong><br>
+        <a href='/distro/ubuntu/noble'>/distro/ubuntu/noble</a> - Get information about Ubuntu 24.04 LTS (Noble Numbat)
+        </p>
+      </div>
+      <div class='example'>
+        <p><strong>Fedora 42</strong><br>
+        <a href='/distro/fedora/42'>/distro/fedora/42</a> - Get information about Fedora 42
+        </p>
+      </div>
+      <div class='example'>
+        <p><strong>Debian Trixie</strong><br>
+        <a href='/distro/debian/trixie'>/distro/debian/trixie</a> - Get information about Debian 13 (Trixie)
+        </p>
+      </div>
+      
+    </div>
+    <div class='footer'>
+      <p>DistroMap API <span class='api-version'>{{API_VERSION}}</span></p>
+      <p>Built with <a href="https://ring-lang.net/">Ring {{RING_VERSION}}</a></p>
+      <p>Made with ❤️ by <a href="https://github.com/ysdragon">ysdragon</a></p>
+    </div>
+  </div>
+</body>
+</html>

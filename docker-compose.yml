@@ -1,0 +1,17 @@
+services:
+  distromap:
+    image: ysdragon/ring:light
+    container_name: distromap-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    environment:
+      - RING_FILE=main.ring
+      - RING_PACKAGES=simplejson
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8080
+      - UPDATE_INTERVAL=6
+      - SSL_VERIFY_PEER=false
+      - DEBUG=false
+    restart: unless-stopped
