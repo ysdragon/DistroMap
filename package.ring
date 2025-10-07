@@ -39,7 +39,11 @@ aPackageInfo = [
 		"src/distromap.ring",
 		"src/utils/color.ring",
 		"src/utils/log.ring",
-		"src/utils/validate.ring"
+		"src/utils/validate.ring",
+		"LICENSE",
+		"README.md",
+		"src/public/index.html",
+		"src/public/assets/style.css"
 	],
 	:ringfolderfiles = 	[
 
