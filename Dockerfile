@@ -1,6 +1,21 @@
 # Use the official Ring light image as base
 FROM ysdragon/ring:light
 
+# Build arguments
+ARG VERSION=1.2.0
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Image labels
+LABEL org.opencontainers.image.title="DistroMap API" \
+      org.opencontainers.image.description="Linux distribution release information API" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.source="https://github.com/ysdragon/DistroMap" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.vendor="ysdragon"
+
 # Set working directory
 WORKDIR /app
 
