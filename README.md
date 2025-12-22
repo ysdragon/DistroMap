@@ -278,7 +278,7 @@ Configure the application using environment variables:
 ### Metrics
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `METRICS_ENABLED` | `true` | Enable `/metrics` endpoint |
+| `METRICS_ENABLED` | `false` | Enable `/metrics` endpoint |
 
 ## Contributing
 
