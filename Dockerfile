@@ -1,5 +1,5 @@
 # Use the official Ring light image as base
-FROM ysdragon/ring:light
+FROM ysdragon/ring:nightly-light
 
 # Build arguments
 ARG VERSION=1.2.0
