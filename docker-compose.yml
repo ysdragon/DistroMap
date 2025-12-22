@@ -1,17 +1,32 @@
 services:
   distromap:
-    image: ysdragon/ring:light
+    build: .
+    image: distromap-api:latest
     container_name: distromap-api
     ports:
       - "8080:8080"
-    volumes:
-      - .:/app
     environment:
-      - RING_FILE=main.ring
-      - RING_PACKAGES=simplejson
+      # Server Settings
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=8080
+      - BASE_URL=http://localhost:8080
       - UPDATE_INTERVAL=6
-      - SSL_VERIFY_PEER=false
+      - SSL_VERIFY_PEER=true
+      # CORS Settings
+      - CORS_ENABLED=true
+      - CORS_ORIGIN=*
+      - CORS_METHODS=GET, OPTIONS
+      - CORS_HEADERS=Content-Type, Accept
+      # Caching & Logging
+      - CACHE_MAX_AGE=300
+      - REQUEST_LOGGING=true
       - DEBUG=false
+      # Metrics (disabled by default for security)
+      - METRICS_ENABLED=false
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

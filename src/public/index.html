@@ -1,70 +1,257 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 
 <head>
-  <meta charset='UTF-8'>
-  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-  <title>DistroMap API</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DistroMap API - Linux Distribution Release Information</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="DistroMap API provides comprehensive Linux distribution version and release cycle information. Query Ubuntu, Debian, Fedora, and 400+ products with fuzzy search support.">
+  <meta name="keywords" content="Linux, distribution, API, Ubuntu, Debian, Fedora, release, version, EOL, end of life, LTS">
+  <meta name="author" content="ysdragon">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="DistroMap API">
+  <meta property="og:description" content="Query Linux distribution release information for 400+ products. Fuzzy search, release comparison, and Prometheus metrics.">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="DistroMap API">
+  <meta name="twitter:description" content="Query Linux distribution release information for 400+ products.">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+  
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
   <link href="/src/public/assets/style.css" rel="stylesheet" type="text/css">
-
+  <script src="/src/public/assets/app.js" defer></script>
 </head>
 
 <body>
-  <div class='container'>
-    <div class='header'>
+  <div class="container">
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme">
+      <span class="theme-icon-dark">🌙</span>
+      <span class="theme-icon-light">☀️</span>
+    </button>
+
+    <div class="header">
       <h1>DistroMap API</h1>
-      <p class='subtitle'>A service that provides information about Linux distribution versions and release cycles</p>
+      <p class="subtitle">A service that provides information about Linux distribution versions and release cycles</p>
+      
+      <!-- Live Status Badge -->
+      <div class="status-bar" id="statusBar">
+        <span class="status-indicator" id="statusIndicator">
+          <span class="status-dot loading"></span>
+          <span class="status-text">Checking...</span>
+        </span>
+        <span class="status-stat" id="productCount">-- products</span>
+        <span class="status-stat" id="uptimeDisplay">--</span>
+      </div>
+
+      <!-- Feature Badges -->
+      <div class="feature-badges">
+        <span class="badge">🔍 Fuzzy Search</span>
+        <span class="badge" id="productBadge">📦 400+ Products</span>
+        <span class="badge">⚡ Fast & Lightweight</span>
+        <span class="badge">🔄 Auto-Updated</span>
+        {{METRICS_BADGE}}
+      </div>
     </div>
-    <div class='content'>
-      <div class='api-info'>
+
+    <div class="content">
+      <!-- Interactive Try It Section -->
+      <div class="try-it-section">
+        <h2>🚀 Try It Now</h2>
+        <div class="try-it-form">
+          <div class="input-group">
+            <input type="text" id="productInput" placeholder="Product (e.g., ubuntu)" autocomplete="off">
+            <input type="text" id="codenameInput" placeholder="Version/Codename (e.g., noble)" autocomplete="off">
+            <button id="searchBtn" class="btn-primary">Search</button>
+          </div>
+          <div class="quick-links">
+            Quick: 
+            <button class="quick-btn" data-product="ubuntu" data-codename="noble">Ubuntu Noble</button>
+            <button class="quick-btn" data-product="debian" data-codename="trixie">Debian Trixie</button>
+            <button class="quick-btn" data-product="fedora" data-codename="43">Fedora 43</button>
+          </div>
+        </div>
+        <div class="response-container" id="responseContainer" style="display: none;">
+          <div class="response-header">
+            <span class="response-title">Response</span>
+            <button class="copy-btn" id="copyResponseBtn" data-copy-target="responseOutput">📋 Copy</button>
+          </div>
+          <pre class="response-output" id="responseOutput"></pre>
+        </div>
+      </div>
+
+      <div class="api-info">
         <h2>API Usage</h2>
-        <p>This API allows you to query Linux distribution release information by product name and codename.</p>
+        <p>This API allows you to query Linux distribution release information by product name and codename. It supports fuzzy matching for typo correction and provides suggestions for similar products.</p>
       </div>
 
       <h3>Available Endpoints</h3>
-      <div class='endpoint'>
-        <strong>Get distribution info:</strong><br>
+      
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <strong>Get distribution info:</strong>
+          <button class="copy-btn" data-copy="curl {{BASE_URL}}/distro/ubuntu/noble">📋 Copy curl</button>
+        </div>
         <code>GET /distro/{product}/{codename}</code><br>
-        Example: <code>/distro/ubuntu/noble</code> or <code>/distro/debian/bookworm</code>
+        <span class="endpoint-desc">Example: <code>/distro/ubuntu/noble</code> or <code>/distro/debian/trixie</code></span>
+        <details class="response-preview">
+          <summary>View sample response</summary>
+          <pre>{
+  "name": "24.04",
+  "codename": "Noble Numbat",
+  "label": "24.04 'Noble Numbat' (LTS)",
+  "releaseDate": "2024-04-25",
+  "isLts": 1,
+  "isMaintained": 1,
+  "eolFrom": "2029-04-25"
+}</pre>
+        </details>
       </div>
 
-      <div class='endpoint'>
-        <strong>Health check:</strong><br>
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <strong>Get all releases for a product:</strong>
+          <button class="copy-btn" data-copy="curl {{BASE_URL}}/distro/ubuntu">📋 Copy curl</button>
+        </div>
+        <code>GET /distro/{product}</code><br>
+        <span class="endpoint-desc">Example: <code>/distro/ubuntu</code> - Returns all Ubuntu releases</span>
+        <details class="response-preview">
+          <summary>View sample response</summary>
+          <pre>{
+  "product": "ubuntu",
+  "releaseCount": 15,
+  "releases": [...]
+}</pre>
+        </details>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <strong>List all products:</strong>
+          <button class="copy-btn" data-copy="curl {{BASE_URL}}/products">📋 Copy curl</button>
+        </div>
+        <code>GET /products</code><br>
+        <span class="endpoint-desc">Returns a list of all available Linux distributions/products</span>
+        <details class="response-preview">
+          <summary>View sample response</summary>
+          <pre>{
+  "count": 428,
+  "products": [
+    {"name": "ubuntu", "releaseCount": 43},
+    {"name": "debian", "releaseCount": 18},
+    ...
+  ]
+}</pre>
+        </details>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <strong>Compare releases:</strong>
+          <button class="copy-btn" data-copy="curl {{BASE_URL}}/compare/ubuntu/noble/debian/trixie">📋 Copy curl</button>
+        </div>
+        <code>GET /compare/{product1}/{version1}/{product2}/{version2}</code><br>
+        <span class="endpoint-desc">Example: <code>/compare/ubuntu/noble/debian/trixie</code></span>
+        <details class="response-preview">
+          <summary>View sample response</summary>
+          <pre>{
+  "comparison": {
+    "release1": {"product": "ubuntu", "version": "noble", ...},
+    "release2": {"product": "debian", "version": "trixie", ...},
+    "analysis": {
+      "eolComparison": "Release 1 has longer support",
+      "ltsComparison": "Both releases are LTS",
+      "recommendation": "Release 1 is recommended"
+    }
+  }
+}</pre>
+        </details>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <strong>Health check:</strong>
+          <button class="copy-btn" data-copy="curl {{BASE_URL}}/health">📋 Copy curl</button>
+        </div>
         <code>GET /health</code><br>
-        Returns API status and database information
+        <span class="endpoint-desc">Returns API status, uptime, database info, and upstream connectivity</span>
+        <details class="response-preview">
+          <summary>View sample response</summary>
+          <pre>{
+  "status": "healthy",
+  "version": "{{API_VERSION}}",
+  "uptime": "2d 5h 30m 15s",
+  "database": {
+    "loaded": true,
+    "product_count": 419
+  },
+  "upstream": {
+    "endoflife_date": "reachable"
+  }
+}</pre>
+        </details>
       </div>
 
-      <div class='endpoint'>
-        <strong>This page:</strong><br>
-        <code>GET /</code><br>
-        Returns this HTML documentation page
-      </div>
+{{METRICS_ENDPOINT}}
 
-      <h3>Examples</h3>
-      <div class='example'>
-        <p><strong>Ubuntu Noble (24.04)</strong><br>
-          <a href='/distro/ubuntu/noble'>/distro/ubuntu/noble</a> - Get information about Ubuntu 24.04 LTS (Noble
-          Numbat)
-        </p>
-      </div>
-      <div class='example'>
-        <p><strong>Fedora 42</strong><br>
-          <a href='/distro/fedora/42'>/distro/fedora/42</a> - Get information about Fedora 42
-        </p>
-      </div>
-      <div class='example'>
-        <p><strong>Debian Trixie</strong><br>
-          <a href='/distro/debian/trixie'>/distro/debian/trixie</a> - Get information about Debian 13 (Trixie)
-        </p>
+      <h3>Live Examples</h3>
+      <div class="examples-grid">
+        <a href="/distro/ubuntu/noble" class="example-card">
+          <img class="example-icon" src="https://assets.ubuntu.com/v1/49a1a858-favicon-32x32.png" alt="Ubuntu" loading="lazy">
+          <span class="example-title">Ubuntu Noble</span>
+          <span class="example-desc">24.04 LTS</span>
+        </a>
+        <a href="/distro/debian/trixie" class="example-card">
+          <img class="example-icon" src="https://www.debian.org/favicon.ico" alt="Debian" loading="lazy">
+          <span class="example-title">Debian Trixie</span>
+          <span class="example-desc">Version 13</span>
+        </a>
+        <a href="/distro/fedora/43" class="example-card">
+          <img class="example-icon" src="https://fedoraproject.org/favicon.ico" alt="Fedora" loading="lazy">
+          <span class="example-title">Fedora 43</span>
+          <span class="example-desc">Latest release</span>
+        </a>
+        <a href="/distro/nodejs/24" class="example-card">
+          <img class="example-icon" src="https://nodejs.org/favicon.ico" alt="Node.js" loading="lazy">
+          <span class="example-title">Node.js 24</span>
+          <span class="example-desc">LTS</span>
+        </a>
+        <a href="/distro/bun/1" class="example-card">
+          <img class="example-icon" src="https://bun.sh/favicon.ico" alt="Bun" loading="lazy">
+          <span class="example-title">Bun 1</span>
+          <span class="example-desc">Fast JS runtime</span>
+        </a>
+        <a href="/compare/ubuntu/noble/debian/trixie" class="example-card">
+          <span class="example-icon example-icon-emoji">⚖️</span>
+          <span class="example-title">Compare</span>
+          <span class="example-desc">Ubuntu vs Debian</span>
+        </a>
+        <a href="/products" class="example-card">
+          <span class="example-icon example-icon-emoji">📦</span>
+          <span class="example-title">All Products</span>
+          <span class="example-desc">Browse catalog</span>
+        </a>
       </div>
 
     </div>
-    <div class='footer'>
-      <p>DistroMap API <span class='api-version'>{{API_VERSION}}</span></p>
-      <p>Built with <a href="https://ring-lang.net/">Ring {{RING_VERSION}}</a></p>
+    <div class="footer">
+      <p><a href="https://github.com/ysdragon/DistroMap">DistroMap API</a> <span class="api-version">{{API_VERSION}}</span></p>
+      <p>Data from <a href="https://endoflife.date">endoflife.date</a> • Built with <a href="https://ring-lang.net/">Ring {{RING_VERSION}}</a></p>
       <p>Made with ❤️ by <a href="https://github.com/ysdragon">ysdragon</a></p>
     </div>
   </div>
+
 </body>
 
 </html>

@@ -2,7 +2,7 @@
  * Validates input parameters for API requests
  * @param cProductName The product name to validate
  * @param cCodename The codename to validate
- * @return true if valid, false otherwise
+ * @return true (1) if valid, false (0) otherwise
  */
 func validateInput(cProductName, cCodename) {
     if (isNull(cProductName) || isNull(cCodename)) {
@@ -24,7 +24,7 @@ func validateInput(cProductName, cCodename) {
 /**
  * Validates product name format
  * @param cName The product name to validate
- * @return true if valid format, false otherwise
+ * @return true (1) if valid format, false (0) otherwise
  */
 func isValidProductName(cName) {
     // Allow alphanumeric, dots, hyphens, underscores
@@ -40,7 +40,7 @@ func isValidProductName(cName) {
 /**
  * Validates codename format
  * @param cCodename The codename to validate
- * @return true if valid format, false otherwise
+ * @return true (1) if valid format, false (0) otherwise
  */
 func isValidCodename(cCodename) {
     // Allow alphanumeric, dots, hyphens, underscores

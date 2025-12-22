@@ -8,15 +8,26 @@ A lightweight web API server that provides Linux distribution and release inform
 
 DistroMap API is designed as a quick lookup service for Linux distribution information. You can query it with endpoints like `/distro/ubuntu/noble` and receive detailed version information and release data in return.
 
+## Features
+
+- **Fuzzy Matching** - Automatic typo correction using Levenshtein distance algorithm
+- **Smart Suggestions** - Returns similar product names when a query doesn't match
+- **Release Comparison** - Compare two releases side-by-side with recommendations
+- **Prometheus Metrics** - Built-in metrics endpoint for monitoring
+- **CORS Support** - Configurable Cross-Origin Resource Sharing
+- **Response Caching** - Configurable cache headers for better performance
+
 ## API Endpoints
 
 ### Get Distribution Information
+
+#### Get Specific Release
 ```
 GET /distro/{product}/{codename}
 ```
 
 **Parameters:**
-- `product` - The Linux distribution/product name (e.g., "ubuntu", "debian")
+- `product` - The product name (e.g., "ubuntu", "debian", "nodejs")
 - `codename` - The release codename OR version number (e.g., "noble", "jammy", "22.04", "11")
 
 **Example Requests:**
@@ -26,6 +37,9 @@ curl http://localhost:8080/distro/ubuntu/noble
 
 # Using version number
 curl http://localhost:8080/distro/ubuntu/24.04
+
+# Fuzzy matching (typo correction)
+curl http://localhost:8080/distro/ubunt/noble  # Still finds Ubuntu
 ```
 
 **Example Response:**
@@ -53,6 +67,94 @@ curl http://localhost:8080/distro/ubuntu/24.04
 }
 ```
 
+#### Get All Releases for a Product
+```
+GET /distro/{product}
+```
+
+**Example:**
+```bash
+curl http://localhost:8080/distro/ubuntu
+```
+
+**Example Response:**
+```json
+{
+  "product": "ubuntu",
+  "releaseCount": 15,
+  "releases": [...]
+}
+```
+
+---
+
+### List Products
+
+#### Get All Products
+```
+GET /products
+```
+
+Returns a list of all available products with their release counts.
+
+**Example Response:**
+```json
+{
+  "count": 428,
+  "products": [
+    {"name": "ubuntu", "releaseCount": 43},
+    {"name": "debian", "releaseCount": 18},
+    ...
+  ]
+}
+```
+
+#### Get Product Details
+```
+GET /products/{product}
+```
+
+Returns all releases for a specific product.
+
+---
+
+### Compare Releases
+```
+GET /compare/{product1}/{version1}/{product2}/{version2}
+```
+
+Compare two releases and get recommendations.
+
+**Example:**
+```bash
+curl http://localhost:8080/compare/ubuntu/22.04/ubuntu/24.04
+```
+
+**Example Response:**
+```json
+{
+  "comparison": {
+    "release1": {
+      "product": "ubuntu",
+      "version": "22.04",
+      "data": {...}
+    },
+    "release2": {
+      "product": "ubuntu",
+      "version": "24.04",
+      "data": {...}
+    },
+    "analysis": {
+      "eolComparison": "Release 2 has longer support (EOL: 2029-04-25 vs 2027-04-01)",
+      "ltsComparison": "Both releases are LTS",
+      "recommendation": "Release 2 is recommended (longer support period)"
+    }
+  }
+}
+```
+
+---
+
 ### Health Check
 ```
 GET /health
@@ -62,15 +164,57 @@ GET /health
 ```json
 {
   "status": "healthy",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "timestamp": "2025-10-05 22:40:59",
+  "uptime": "2d 5h 30m 15s",
   "database": {
-    "loaded": 1,
+    "loaded": true,
     "product_count": 419,
     "last_update": "2025-10-05 22:37:44",
     "update_count": 1
+  },
+  "upstream": {
+    "endoflife_date": "reachable",
+    "last_check": "2025-10-05 22:40:59",
+    "api_url": "https://endoflife.date/api/v1/products/full"
   }
 }
+```
+
+---
+
+### Metrics (Prometheus)
+```
+GET /metrics
+```
+
+Returns Prometheus-compatible metrics for monitoring.
+
+**Example Response:**
+```
+# HELP distromap_requests_total Total number of HTTP requests
+# TYPE distromap_requests_total counter
+distromap_requests_total 1234
+
+# HELP distromap_requests_successful Total successful requests
+# TYPE distromap_requests_successful counter
+distromap_requests_successful 1200
+
+# HELP distromap_requests_failed Total failed requests
+# TYPE distromap_requests_failed counter
+distromap_requests_failed 34
+
+# HELP distromap_fuzzy_matches_total Total fuzzy match hits
+# TYPE distromap_fuzzy_matches_total counter
+distromap_fuzzy_matches_total 56
+
+# HELP distromap_uptime_seconds Server uptime in seconds
+# TYPE distromap_uptime_seconds gauge
+distromap_uptime_seconds 86400
+
+# HELP distromap_database_products Number of products in database
+# TYPE distromap_database_products gauge
+distromap_database_products 419
 ```
 
 ## Installation & Setup
@@ -108,12 +252,33 @@ The server will start on `0.0.0.0:8080` by default and begin loading the product
 
 Configure the application using environment variables:
 
+### Server Settings
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SERVER_HOST` | `0.0.0.0` | Server bind address |
 | `SERVER_PORT` | `8080` | Server port |
 | `UPDATE_INTERVAL` | `6` | Database update interval (hours) |
-| `SSL_VERIFY_PEER` | `false` | Enable SSL certificate verification |
+| `SSL_VERIFY_PEER` | `true` | Enable SSL certificate verification |
+
+### CORS Settings
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CORS_ENABLED` | `true` | Enable CORS headers |
+| `CORS_ORIGIN` | `*` | Allowed origins |
+| `CORS_METHODS` | `GET, OPTIONS` | Allowed HTTP methods |
+| `CORS_HEADERS` | `Content-Type, Accept` | Allowed headers |
+
+### Caching & Logging
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CACHE_MAX_AGE` | `300` | Cache-Control max-age in seconds |
+| `REQUEST_LOGGING` | `true` | Enable request logging |
+| `DEBUG` | `false` | Enable debug mode |
+
+### Metrics
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `METRICS_ENABLED` | `true` | Enable `/metrics` endpoint |
 
 ## Contributing
 
