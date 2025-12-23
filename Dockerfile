@@ -2,7 +2,7 @@
 FROM ysdragon/ring:nightly-light
 
 # Build arguments
-ARG VERSION=1.2.0
+ARG VERSION=1.3.0
 ARG BUILD_DATE
 ARG VCS_REF
 

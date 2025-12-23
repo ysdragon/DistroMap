@@ -1,5 +1,5 @@
 // Server Configuration
-API_VERSION = "1.2.0"
+API_VERSION = "1.3.0"
 SERVER_HOST = getEnvVar("SERVER_HOST", "0.0.0.0")
 SERVER_PORT = number(getEnvVar("SERVER_PORT", "8080"))
 BASE_URL = getEnvVar("BASE_URL", "http://localhost:" + SERVER_PORT)
