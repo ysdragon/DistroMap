@@ -1,0 +1,26 @@
+name: Deploy to EasyPanel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger EasyPanel Deployment
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.EASYPANEL_DEPLOY_URL }}")
+          if [ "$response" -ge 200 ] && [ "$response" -lt 300 ]; then
+            echo "Deployment triggered successfully (HTTP $response)"
+          else
+            echo "Deployment failed (HTTP $response)"
+            exit 1
+          fi
+
+      - name: Deployment Summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target:** EasyPanel" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
