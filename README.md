@@ -257,6 +257,7 @@ Configure the application using environment variables:
 |----------|---------|-------------|
 | `SERVER_HOST` | `0.0.0.0` | Server bind address |
 | `SERVER_PORT` | `8080` | Server port |
+| `BASE_URL` | `http://localhost:8080` | Public base URL for the API (used in frontend templates) |
 | `UPDATE_INTERVAL` | `6` | Database update interval (hours) |
 | `SSL_VERIFY_PEER` | `true` | Enable SSL certificate verification |
 
