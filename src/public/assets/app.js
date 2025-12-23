@@ -187,6 +187,8 @@
   // ============================================
   const SearchManager = {
     elements: {},
+    // Valid input pattern matching server-side validation
+    VALID_INPUT_PATTERN: /^[a-zA-Z0-9._-]+$/,
 
     init() {
       this.elements = {
@@ -229,12 +231,37 @@
       });
     },
 
+    /**
+     * Validate input against allowed pattern
+     * @param {string} value - The value to validate
+     * @param {string} fieldName - Name of the field for error messages
+     * @returns {boolean} True if valid, false otherwise
+     */
+    validateInput(value, fieldName) {
+      if (!value) {
+        return true; // Empty is allowed (handled separately)
+      }
+      if (!this.VALID_INPUT_PATTERN.test(value)) {
+        this.showError(`Invalid ${fieldName}: only letters, numbers, dots, hyphens, and underscores are allowed`);
+        return false;
+      }
+      return true;
+    },
+
     async performSearch() {
       const product = this.elements.productInput?.value.trim();
       const codename = this.elements.codenameInput?.value.trim();
 
       if (!product) {
         this.showError('Please enter a product name');
+        return;
+      }
+
+      // Validate inputs before making request
+      if (!this.validateInput(product, 'product name')) {
+        return;
+      }
+      if (codename && !this.validateInput(codename, 'codename')) {
         return;
       }
 
