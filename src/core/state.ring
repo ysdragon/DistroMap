@@ -35,3 +35,58 @@ metrics = [
 	:notFoundCount = 0,
 	:fuzzyMatchCount = 0
 ]
+
+// Mutex for metrics access
+metricsMutex = NULL
+
+/**
+ * Initialize the metrics mutex
+ * Must be called before starting the HTTP server thread
+ */
+func initMetricsMutex() {
+	metricsMutex = new_uv_mutex_t()
+	uv_mutex_init(metricsMutex)
+}
+
+/**
+ * Increment a specific metric
+ * @param metricKey The key of the metric to increment (e.g., :requestsTotal)
+ */
+func incrementMetric(metricKey) {
+	if (!isNull(metricsMutex)) {
+		uv_mutex_lock(metricsMutex)
+	}
+	metrics[metricKey] = metrics[metricKey] + 1
+	if (!isNull(metricsMutex)) {
+		uv_mutex_unlock(metricsMutex)
+	}
+}
+
+/**
+ * Increment the request count for a specific endpoint
+ * @param endpoint The endpoint key (e.g., :distro, :health)
+ */
+func incrementEndpointMetric(endpoint) {
+	if (!isNull(metricsMutex)) {
+		uv_mutex_lock(metricsMutex)
+	}
+	metrics[:requestsByEndpoint][endpoint] = metrics[:requestsByEndpoint][endpoint] + 1
+	if (!isNull(metricsMutex)) {
+		uv_mutex_unlock(metricsMutex)
+	}
+}
+
+/**
+ * Retrieve a copy of the metrics
+ * @return Copy of metrics data
+ */
+func getMetrics() {
+	if (!isNull(metricsMutex)) {
+		uv_mutex_lock(metricsMutex)
+	}
+	aMetricsCopy = metrics
+	if (!isNull(metricsMutex)) {
+		uv_mutex_unlock(metricsMutex)
+	}
+	return aMetricsCopy
+}
