@@ -8,9 +8,9 @@
  * Health check endpoint
  */
 func handleHealthCheck() {
-	metrics[:requestsTotal] = metrics[:requestsTotal] + 1
-	metrics[:requestsByEndpoint][:health] = metrics[:requestsByEndpoint][:health] + 1
-	metrics[:requestsSuccessful] = metrics[:requestsSuccessful] + 1
+	incrementMetric(:requestsTotal)
+	incrementEndpointMetric(:health)
+	incrementMetric(:requestsSuccessful)
 	
 	logRequest("/health", "")
 	
@@ -31,8 +31,8 @@ func handleHealthCheck() {
 		:timestamp = getFormattedTimestamp(),
 		:uptime = cUptime,
 		:database = [
-			:loaded = !isNull(aProductsData),
-			:product_count = len(aProductsData[:result]),
+			:loaded = isDatabaseLoaded(),
+			:product_count = getProductCount(),
 			:last_update = appState[:lastUpdateTime],
 			:update_count = appState[:updateCount]
 		],
@@ -56,7 +56,7 @@ func checkUpstreamStatus() {
 			// Just do a HEAD request to check connectivity
 			curl_easy_setopt(curl, CURLOPT_URL, "https://endoflife.date/api/v1/products")
 			curl_easy_setopt(curl, CURLOPT_NOBODY, 1)
-			curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5)
+			curl_easy_setopt(curl, CURLOPT_TIMEOUT, UPSTREAM_CHECK_TIMEOUT)
 			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, SSL_VERIFY_PEER)
 			curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT)
 			
