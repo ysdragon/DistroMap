@@ -12,7 +12,7 @@ func setCorsHeaders() {
 		oServer.response().set_header("Access-Control-Allow-Origin", CORS_ORIGIN)
 		oServer.response().set_header("Access-Control-Allow-Methods", CORS_METHODS)
 		oServer.response().set_header("Access-Control-Allow-Headers", CORS_HEADERS)
-		oServer.response().set_header("Access-Control-Max-Age", "86400")
+		oServer.response().set_header("Access-Control-Max-Age", CORS_MAX_AGE)
 	}
 }
 

@@ -63,7 +63,7 @@ func findReleaseForProductAndCodename(cProductName, cCodename) {
 		for aRelease in aTargetProduct[:releases] {
 			if (aRelease && aRelease[:codename]) {
 				nDistance = levenshteinDistance(cSearchCodename, lower(aRelease[:codename]))
-				if (nDistance < nBestDistance && nDistance <= 2) {
+				if (nDistance < nBestDistance && nDistance <= FUZZY_MATCH_THRESHOLD) {
 					nBestDistance = nDistance
 					aBestRelease = aRelease
 				}
@@ -115,8 +115,8 @@ func findProductWithFuzzy(cProductName) {
 	for aProduct in aProductsData[:result] {
 		if (aProduct && aProduct[:name]) {
 			nDistance = levenshteinDistance(cSearchProduct, lower(aProduct[:name]))
-			// Accept matches with distance <= 2 (allows for small typos)
-			if (nDistance < nBestDistance && nDistance <= 2) {
+			// Accept matches with distance <= FUZZY_MATCH_THRESHOLD (allows for small typos)
+			if (nDistance < nBestDistance && nDistance <= FUZZY_MATCH_THRESHOLD) {
 				nBestDistance = nDistance
 				aBestProduct = aProduct
 				cBestName = aProduct[:name]
@@ -150,7 +150,7 @@ func getSimilarProducts(cProductName) {
 	for aProduct in aProductsData[:result] {
 		if (aProduct && aProduct[:name]) {
 			nDistance = levenshteinDistance(cLower, lower(aProduct[:name]))
-			if (nDistance <= 3 && nDistance > 0) {
+			if (nDistance <= SUGGESTION_DISTANCE_THRESHOLD && nDistance > 0) {
 				add(aSuggestions, aProduct[:name])
 			}
 			// Also check if the search term is a substring
@@ -160,8 +160,8 @@ func getSimilarProducts(cProductName) {
 				}
 			}
 		}
-		// Limit suggestions to 5
-		if (len(aSuggestions) >= 5) {
+		// Limit suggestions
+		if (len(aSuggestions) >= MAX_SUGGESTIONS) {
 			exit
 		}
 	}
