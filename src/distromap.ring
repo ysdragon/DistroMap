@@ -79,6 +79,9 @@ func main() {
 	// Setup graceful shutdown signal handlers
 	setupSignalHandlers()
 
+	// Initialize mutex for metrics before starting HTTP server
+	initMetricsMutex()
+
 	// Start the HTTP server in a separate thread to avoid blocking the main thread.
 	server_thread_id = new_uv_thread_t()
 	uv_thread_create(server_thread_id, "startHttpServer()")
