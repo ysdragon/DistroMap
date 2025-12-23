@@ -26,6 +26,8 @@ func refreshProductData() {
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT)
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1)
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, SSL_VERIFY_PEER)
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, API_REQUEST_TIMEOUT)
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, API_CONNECT_TIMEOUT)
 
 		cResponseBody = curl_easy_perform_silent(curl)
 		nStatus = curl_getResponseCode(curl)
