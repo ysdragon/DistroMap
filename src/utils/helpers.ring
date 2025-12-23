@@ -14,45 +14,67 @@ func levenshteinDistance(s1, s2) {
 	n1 = len(s1)
 	n2 = len(s2)
 	
+	// Handle empty strings
 	if (n1 = 0) { return n2 }
 	if (n2 = 0) { return n1 }
 	
-	// Create distance matrix
-	d = list(n1 + 1)
-	for i = 1 to n1 + 1 {
-		d[i] = list(n2 + 1)
-		for j = 1 to n2 + 1 {
-			d[i][j] = 0
-		}
+	// Ensure s1 is the shorter string
+	if (n1 > n2) {
+		cTemp = s1
+		s1 = s2
+		s2 = cTemp
+		nTemp = n1
+		n1 = n2
+		n2 = nTemp
 	}
 	
-	// Initialize first column
-	for i = 1 to n1 + 1 {
-		d[i][1] = i - 1
-	}
+	// Only need two rows: previous and current
+	prevRow = list(n1 + 1)
+	currRow = list(n1 + 1)
 	
 	// Initialize first row
-	for j = 1 to n2 + 1 {
-		d[1][j] = j - 1
+	for i = 1 to n1 + 1 {
+		prevRow[i] = i - 1
 	}
 	
-	// Fill in the rest
-	for i = 2 to n1 + 1 {
-		for j = 2 to n2 + 1 {
+	// Process each character of s2
+	for j = 1 to n2 {
+		currRow[1] = j
+		
+		for i = 1 to n1 {
 			cost = 1
-			if (substr(s1, i - 1, 1) = substr(s2, j - 1, 1)) {
+			if (substr(s1, i, 1) = substr(s2, j, 1)) {
 				cost = 0
 			}
 			
-			deletion = d[i - 1][j] + 1
-			insertion = d[i][j - 1] + 1
-			substitution = d[i - 1][j - 1] + cost
+			deletion = prevRow[i + 1] + 1
+			insertion = currRow[i] + 1
+			substitution = prevRow[i] + cost
 			
-			d[i][j] = minVal([deletion, insertion, substitution])
+			currRow[i + 1] = minOfThree(deletion, insertion, substitution)
 		}
+		
+		// Swap rows
+		tempRow = prevRow
+		prevRow = currRow
+		currRow = tempRow
 	}
 	
-	return d[n1 + 1][n2 + 1]
+	return prevRow[n1 + 1]
+}
+
+/**
+ * Returns the minimum of three numbers
+ * @param a First number
+ * @param b Second number
+ * @param c Third number
+ * @return The minimum value
+ */
+func minOfThree(a, b, c) {
+	nMin = a
+	if (b < nMin) { nMin = b }
+	if (c < nMin) { nMin = c }
+	return nMin
 }
 
 /**
@@ -112,4 +134,22 @@ func getUptimeSeconds() {
 	nStartSeconds = timelistToSeconds(appState[:startTime])
 	nCurrentSeconds = timelistToSeconds(timelist())
 	return nCurrentSeconds - nStartSeconds
+}
+
+/**
+ * Get product count from database with null safety
+ * @return Number of products, or 0 if database not loaded
+ */
+func getProductCount() {
+	if (isNull(aProductsData)) { return 0 }
+	if (isNull(aProductsData[:result])) { return 0 }
+	return len(aProductsData[:result])
+}
+
+/**
+ * Check if database is loaded and has data
+ * @return true if database is ready, false otherwise
+ */
+func isDatabaseLoaded() {
+	return !isNull(aProductsData) && !isNull(aProductsData[:result])
 }
