@@ -8,8 +8,8 @@
  * Compare two product releases
  */
 func handleCompareRequest() {
-	metrics[:requestsTotal] = metrics[:requestsTotal] + 1
-	metrics[:requestsByEndpoint][:compare] = metrics[:requestsByEndpoint][:compare] + 1
+	incrementMetric(:requestsTotal)
+	incrementEndpointMetric(:compare)
 	
 	cProduct1 = oServer.Match(1)
 	cVersion1 = oServer.Match(2)
@@ -22,7 +22,7 @@ func handleCompareRequest() {
 	aResult2 = findReleaseForProductAndCodename(cProduct2, cVersion2)
 	
 	if (isNull(aResult1[:release]) || isNull(aResult2[:release])) {
-		metrics[:requestsFailed] = metrics[:requestsFailed] + 1
+		incrementMetric(:requestsFailed)
 		aErrors = []
 		if (isNull(aResult1[:release])) {
 			add(aErrors, cProduct1 + "/" + cVersion1 + " not found")
@@ -38,7 +38,7 @@ func handleCompareRequest() {
 		return
 	}
 	
-	metrics[:requestsSuccessful] = metrics[:requestsSuccessful] + 1
+	incrementMetric(:requestsSuccessful)
 	
 	aResponse = [
 		:comparison = [

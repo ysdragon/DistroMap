@@ -8,19 +8,19 @@
  * Products list endpoint - returns all available products
  */
 func handleProductsRequest() {
-	metrics[:requestsTotal] = metrics[:requestsTotal] + 1
-	metrics[:requestsByEndpoint][:products] = metrics[:requestsByEndpoint][:products] + 1
+	incrementMetric(:requestsTotal)
+	incrementEndpointMetric(:products)
 	
 	logRequest("/products", "")
 	
 	if (isNull(aProductsData) || isNull(aProductsData[:result])) {
-		metrics[:requestsFailed] = metrics[:requestsFailed] + 1
+		incrementMetric(:requestsFailed)
 		aError = [:error = "Database not loaded"]
 		sendJsonResponse(aError, 503, 0)
 		return
 	}
 	
-	metrics[:requestsSuccessful] = metrics[:requestsSuccessful] + 1
+	incrementMetric(:requestsSuccessful)
 	
 	aProducts = []
 	for aProduct in aProductsData[:result] {
@@ -48,8 +48,8 @@ func handleProductsRequest() {
  * Get all releases for a specific product
  */
 func handleProductReleasesRequest() {
-	metrics[:requestsTotal] = metrics[:requestsTotal] + 1
-	metrics[:requestsByEndpoint][:products] = metrics[:requestsByEndpoint][:products] + 1
+	incrementMetric(:requestsTotal)
+	incrementEndpointMetric(:products)
 	
 	cProductName = oServer.Match(1)
 	logRequest("/products/{product}", cProductName)
@@ -57,9 +57,9 @@ func handleProductReleasesRequest() {
 	aResult = findProductWithFuzzy(cProductName)
 	
 	if (!isNull(aResult[:product])) {
-		metrics[:requestsSuccessful] = metrics[:requestsSuccessful] + 1
+		incrementMetric(:requestsSuccessful)
 		if (aResult[:fuzzyMatch]) {
-			metrics[:fuzzyMatchCount] = metrics[:fuzzyMatchCount] + 1
+			incrementMetric(:fuzzyMatchCount)
 		}
 		
 		aResponse = [
@@ -76,8 +76,8 @@ func handleProductReleasesRequest() {
 		}
 		sendJsonResponse(aResponse, 200, CACHE_MAX_AGE)
 	else
-		metrics[:requestsFailed] = metrics[:requestsFailed] + 1
-		metrics[:notFoundCount] = metrics[:notFoundCount] + 1
+		incrementMetric(:requestsFailed)
+		incrementMetric(:notFoundCount)
 		
 		aSuggestions = getSimilarProducts(cProductName)
 		aError = [

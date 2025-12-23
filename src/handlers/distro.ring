@@ -8,8 +8,8 @@
  * Main handler for /distro/{product}/{codename} requests
  */
 func handleDistroRequest() {
-	metrics[:requestsTotal] = metrics[:requestsTotal] + 1
-	metrics[:requestsByEndpoint][:distro] = metrics[:requestsByEndpoint][:distro] + 1
+	incrementMetric(:requestsTotal)
+	incrementEndpointMetric(:distro)
 	
 	cProductName = oServer.Match(2)
 	cCodename = oServer.Match(3)
@@ -18,7 +18,7 @@ func handleDistroRequest() {
 
 	// Validate input parameters
 	if (!validateInput(cProductName, cCodename)) {
-		metrics[:requestsFailed] = metrics[:requestsFailed] + 1
+		incrementMetric(:requestsFailed)
 		aError = [
 			:error = "Invalid product name or codename format.",
 			:valid_format = "Product name and codename should contain only alphanumeric characters, dots, hyphens, and underscores."
@@ -31,9 +31,9 @@ func handleDistroRequest() {
 
 	if (!isNull(aResult[:release])) {
 		// SUCCESS (200 OK)
-		metrics[:requestsSuccessful] = metrics[:requestsSuccessful] + 1
+		incrementMetric(:requestsSuccessful)
 		if (aResult[:fuzzyMatch]) {
-			metrics[:fuzzyMatchCount] = metrics[:fuzzyMatchCount] + 1
+			incrementMetric(:fuzzyMatchCount)
 		}
 		aResponse = aResult[:release]
 		if (aResult[:fuzzyMatch]) {
@@ -49,8 +49,8 @@ func handleDistroRequest() {
 		}
 	else
 		// NOT FOUND (404)
-		metrics[:requestsFailed] = metrics[:requestsFailed] + 1
-		metrics[:notFoundCount] = metrics[:notFoundCount] + 1
+		incrementMetric(:requestsFailed)
+		incrementMetric(:notFoundCount)
 		
 		// Get suggestions for similar products
 		aSuggestions = getSimilarProducts(cProductName)
@@ -70,8 +70,8 @@ func handleDistroRequest() {
  * Get all releases for a product via /distro/{product} path
  */
 func handleAllReleasesRequest() {
-	metrics[:requestsTotal] = metrics[:requestsTotal] + 1
-	metrics[:requestsByEndpoint][:distro] = metrics[:requestsByEndpoint][:distro] + 1
+	incrementMetric(:requestsTotal)
+	incrementEndpointMetric(:distro)
 	
 	cProductName = oServer.Match(1)
 	logRequest("/distro/{product}", cProductName + " (all releases)")
@@ -79,9 +79,9 @@ func handleAllReleasesRequest() {
 	aResult = findProductWithFuzzy(cProductName)
 	
 	if (!isNull(aResult[:product])) {
-		metrics[:requestsSuccessful] = metrics[:requestsSuccessful] + 1
+		incrementMetric(:requestsSuccessful)
 		if (aResult[:fuzzyMatch]) {
-			metrics[:fuzzyMatchCount] = metrics[:fuzzyMatchCount] + 1
+			incrementMetric(:fuzzyMatchCount)
 		}
 		
 		aResponse = [
@@ -98,8 +98,8 @@ func handleAllReleasesRequest() {
 		}
 		sendJsonResponse(aResponse, 200, CACHE_MAX_AGE)
 	else
-		metrics[:requestsFailed] = metrics[:requestsFailed] + 1
-		metrics[:notFoundCount] = metrics[:notFoundCount] + 1
+		incrementMetric(:requestsFailed)
+		incrementMetric(:notFoundCount)
 		
 		aSuggestions = getSimilarProducts(cProductName)
 		aError = [

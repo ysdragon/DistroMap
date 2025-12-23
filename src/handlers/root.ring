@@ -8,9 +8,9 @@
  * Root endpoint - serves HTML page
  */
 func handleRootRequest() {
-	metrics[:requestsTotal] = metrics[:requestsTotal] + 1
-	metrics[:requestsByEndpoint][:root] = metrics[:requestsByEndpoint][:root] + 1
-	metrics[:requestsSuccessful] = metrics[:requestsSuccessful] + 1
+	incrementMetric(:requestsTotal)
+	incrementEndpointMetric(:root)
+	incrementMetric(:requestsSuccessful)
 	
 	logRequest("/", "HTML page")
 	
@@ -57,7 +57,7 @@ distromap_uptime_seconds 86400</pre>
  * Handle OPTIONS preflight requests for CORS
  */
 func handleOptionsRequest() {
-	metrics[:requestsTotal] = metrics[:requestsTotal] + 1
+	incrementMetric(:requestsTotal)
 	setCorsHeaders()
 	oServer.setStatus(204)
 	oServer.setContent("", "text/plain")
