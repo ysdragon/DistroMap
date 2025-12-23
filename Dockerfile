@@ -25,9 +25,11 @@ COPY . .
 # Expose the default port
 EXPOSE 8080
 
-# Ring runtime settings
+# Install dependencies
+RUN ringpm install
+
+# Set environment variables
 ENV RING_FILE=main.ring
-ENV RING_PACKAGES=simplejson
 
 # Server Settings
 ENV SERVER_HOST=0.0.0.0
