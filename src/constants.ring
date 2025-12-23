@@ -9,6 +9,9 @@ USER_AGENT =  "DistroMap-API/" + API_VERSION
 API_BASE_URL = "https://endoflife.date/api/v1/products/full"
 UPDATE_INTERVAL = number(getEnvVar("UPDATE_INTERVAL", "6"))
 UPDATE_INTERVAL_MS = UPDATE_INTERVAL * 60 * 60 * 1000
+API_REQUEST_TIMEOUT = 30      // Total request timeout in seconds
+API_CONNECT_TIMEOUT = 10      // Connection timeout in seconds
+UPSTREAM_CHECK_TIMEOUT = 5    // Health check upstream timeout in seconds
 
 // Logging Configuration
 DEBUG = getEnvVar("DEBUG", "false") = "true"
@@ -21,6 +24,7 @@ CORS_ENABLED = getEnvVar("CORS_ENABLED", "true") = "true"
 CORS_ORIGIN = getEnvVar("CORS_ORIGIN", "*")
 CORS_METHODS = getEnvVar("CORS_METHODS", "GET, OPTIONS")
 CORS_HEADERS = getEnvVar("CORS_HEADERS", "Content-Type, Accept")
+CORS_MAX_AGE = "86400"        // CORS preflight cache in seconds (24 hours)
 
 // Caching Configuration
 CACHE_MAX_AGE = number(getEnvVar("CACHE_MAX_AGE", "300"))  // 5 minutes default
@@ -30,6 +34,11 @@ REQUEST_LOGGING = getEnvVar("REQUEST_LOGGING", "true") = "true"
 
 // Metrics Configuration
 METRICS_ENABLED = getEnvVar("METRICS_ENABLED", "false") = "true"
+
+// Search/Fuzzy Matching Configuration
+FUZZY_MATCH_THRESHOLD = 2         // Max Levenshtein distance for fuzzy matches
+SUGGESTION_DISTANCE_THRESHOLD = 3 // Max distance for suggestions
+MAX_SUGGESTIONS = 5               // Maximum number of suggestions to return
 
 // Helper function to get environment variable with default
 func getEnvVar(envName, defaultValue) {
